@@ -1,0 +1,2090 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FeCr Burden Sheet — SAF1</title>
+
+<!-- Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;500;600;700;800;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+
+<!-- Chart.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+
+<style>
+/* ═══════════════════════════════════════════
+   DESIGN SYSTEM — Industrial Dark Theme
+   Inspired by metallurgical control panels
+═══════════════════════════════════════════ */
+:root {
+  --bg:           #080b10;
+  --bg2:          #0c1018;
+  --surface:      #101520;
+  --surface2:     #161c28;
+  --surface3:     #1c2335;
+  --border:       #1e2840;
+  --border2:      #2a3650;
+  --border3:      #3a4c6a;
+
+  --amber:        #f5a623;
+  --amber-dim:    #b87a19;
+  --amber-glow:   rgba(245,166,35,0.15);
+  --amber-glow2:  rgba(245,166,35,0.08);
+
+  --cyan:         #00d4ff;
+  --cyan-dim:     #0095b3;
+  --cyan-glow:    rgba(0,212,255,0.12);
+
+  --green:        #00e676;
+  --green-dim:    #00a854;
+  --green-glow:   rgba(0,230,118,0.12);
+
+  --red:          #ff3d5a;
+  --red-glow:     rgba(255,61,90,0.15);
+
+  --purple:       #b47aff;
+
+  --text:         #cdd6f4;
+  --text2:        #8894b0;
+  --text3:        #5a6380;
+
+  --yellow-input: #ffe566;
+  --yellow-bg:    rgba(255,229,102,0.06);
+  --yellow-border:rgba(255,229,102,0.25);
+
+  --font-display: 'Exo 2', sans-serif;
+  --font-mono:    'Share Tech Mono', monospace;
+
+  --r-sm: 4px;
+  --r-md: 8px;
+  --r-lg: 12px;
+
+  --shadow-card: 0 4px 24px rgba(0,0,0,0.5);
+  --shadow-glow: 0 0 30px rgba(245,166,35,0.08);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 14px; scroll-behavior: smooth; }
+body {
+  font-family: var(--font-display);
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border3); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text3); }
+
+/* ══════════════════════════════════════
+   ANIMATED BACKGROUND GRID
+══════════════════════════════════════ */
+.bg-grid {
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background-image:
+    linear-gradient(rgba(30,40,64,0.4) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(30,40,64,0.4) 1px, transparent 1px);
+  background-size: 40px 40px;
+  mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 40%, transparent 100%);
+}
+.bg-glow {
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background:
+    radial-gradient(ellipse 60% 40% at 15% 0%, rgba(245,166,35,0.06) 0%, transparent 70%),
+    radial-gradient(ellipse 50% 50% at 85% 100%, rgba(0,212,255,0.05) 0%, transparent 70%);
+}
+
+/* ══════════════════════════════════════
+   HEADER
+══════════════════════════════════════ */
+.header {
+  position: sticky; top: 0; z-index: 200;
+  background: rgba(8,11,16,0.92);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+  padding: 0 28px;
+  display: flex; align-items: center; justify-content: space-between;
+  height: 62px;
+}
+.header::after {
+  content: '';
+  position: absolute; bottom: -1px; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--amber-dim), var(--amber), var(--amber-dim), transparent);
+  opacity: 0.5;
+}
+
+.logo-wrap { display: flex; align-items: center; gap: 14px; }
+.logo-icon {
+  width: 38px; height: 38px;
+  background: linear-gradient(135deg, var(--amber), #c07000);
+  border-radius: var(--r-md);
+  display: grid; place-items: center;
+  font-size: 18px;
+  box-shadow: 0 0 20px rgba(245,166,35,0.3), inset 0 1px 0 rgba(255,255,255,0.1);
+  flex-shrink: 0;
+  position: relative;
+  overflow: hidden;
+}
+.logo-icon::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.15), transparent);
+}
+.logo-text h1 {
+  font-size: 1.05rem; font-weight: 800; letter-spacing: 0.04em;
+  line-height: 1.1;
+}
+.logo-text h1 em { color: var(--amber); font-style: normal; }
+.logo-sub {
+  font-size: 0.62rem; color: var(--text3);
+  letter-spacing: 0.15em; text-transform: uppercase;
+  margin-top: 1px;
+}
+
+.header-center {
+  display: flex; align-items: center; gap: 6px;
+}
+.status-dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--green);
+  box-shadow: 0 0 8px var(--green);
+  animation: pulse-dot 2s ease-in-out infinite;
+}
+@keyframes pulse-dot {
+  0%,100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(0.8); }
+}
+.status-text { font-size: 0.7rem; color: var(--text3); letter-spacing: 0.1em; text-transform: uppercase; }
+
+.header-right { display: flex; align-items: center; gap: 10px; }
+
+.badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 0.62rem; font-weight: 600;
+  letter-spacing: 0.08em; text-transform: uppercase;
+}
+.badge-amber { background: var(--amber-glow2); color: var(--amber); border: 1px solid rgba(245,166,35,0.2); }
+.badge-cyan  { background: var(--cyan-glow);   color: var(--cyan);  border: 1px solid rgba(0,212,255,0.2); }
+
+.btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 8px 18px;
+  border-radius: var(--r-md);
+  font-family: var(--font-display);
+  font-size: 0.78rem; font-weight: 700;
+  letter-spacing: 0.06em; text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: none;
+}
+.btn-primary {
+  background: linear-gradient(135deg, var(--amber), #c07000);
+  color: #000;
+  box-shadow: 0 0 20px rgba(245,166,35,0.25), inset 0 1px 0 rgba(255,255,255,0.15);
+}
+.btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 28px rgba(245,166,35,0.4); }
+.btn-primary:active { transform: translateY(0); }
+.btn-ghost {
+  background: var(--surface2);
+  color: var(--text2);
+  border: 1px solid var(--border2);
+}
+.btn-ghost:hover { color: var(--text); border-color: var(--border3); background: var(--surface3); }
+.btn-danger {
+  background: var(--surface2);
+  color: var(--red);
+  border: 1px solid rgba(255,61,90,0.2);
+}
+.btn-danger:hover { background: var(--red-glow); border-color: var(--red); }
+
+/* ══════════════════════════════════════
+   NAVIGATION TABS
+══════════════════════════════════════ */
+.nav-bar {
+  position: sticky; top: 62px; z-index: 190;
+  background: rgba(8,11,16,0.95);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  padding: 0 28px;
+  display: flex; align-items: center; gap: 2px;
+  overflow-x: auto;
+}
+.nav-tab {
+  position: relative;
+  display: flex; align-items: center; gap: 8px;
+  padding: 14px 20px;
+  font-size: 0.72rem; font-weight: 600;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--text3);
+  cursor: pointer;
+  background: none; border: none;
+  font-family: var(--font-display);
+  transition: color 0.2s;
+  white-space: nowrap;
+}
+.nav-tab:hover { color: var(--text2); }
+.nav-tab.active { color: var(--amber); }
+.nav-tab.active::after {
+  content: '';
+  position: absolute; bottom: -1px; left: 0; right: 0;
+  height: 2px;
+  background: var(--amber);
+  box-shadow: 0 0 8px var(--amber);
+}
+.nav-tab-num {
+  width: 20px; height: 20px;
+  border-radius: var(--r-sm);
+  background: var(--surface3);
+  display: grid; place-items: center;
+  font-size: 0.6rem;
+  color: var(--text3);
+  transition: all 0.2s;
+}
+.nav-tab.active .nav-tab-num {
+  background: rgba(245,166,35,0.2);
+  color: var(--amber);
+}
+
+/* ══════════════════════════════════════
+   MAIN LAYOUT
+══════════════════════════════════════ */
+.main { position: relative; z-index: 1; padding: 24px 28px 60px; max-width: 1640px; margin: 0 auto; }
+
+.tab-pane { display: none; animation: fadeUp 0.3s ease; }
+.tab-pane.active { display: block; }
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ══════════════════════════════════════
+   INFO STRIP
+══════════════════════════════════════ */
+.info-strip {
+  display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+  padding: 10px 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--amber);
+  border-radius: var(--r-md);
+  margin-bottom: 22px;
+  font-size: 0.72rem; color: var(--text3);
+}
+.info-strip b { color: var(--amber); }
+.info-strip .sep { color: var(--border3); }
+
+/* ══════════════════════════════════════
+   SECTION HEADERS
+══════════════════════════════════════ */
+.section-hd {
+  display: flex; align-items: center; gap: 12px;
+  margin-bottom: 14px;
+}
+.section-hd-label {
+  font-size: 0.68rem; font-weight: 700;
+  letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--amber);
+  white-space: nowrap;
+}
+.section-hd-line {
+  flex: 1; height: 1px;
+  background: linear-gradient(to right, var(--border2), transparent);
+}
+
+/* ══════════════════════════════════════
+   CARDS
+══════════════════════════════════════ */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-card);
+}
+.card-header {
+  padding: 10px 16px;
+  background: var(--surface2);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 8px;
+}
+.card-title {
+  font-size: 0.65rem; font-weight: 700;
+  letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--text3);
+}
+.card-title em { color: var(--cyan); font-style: normal; }
+.card-body { padding: 16px; }
+
+/* ══════════════════════════════════════
+   KPI STRIP
+══════════════════════════════════════ */
+.kpi-strip {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 14px;
+  margin-bottom: 22px;
+}
+.kpi-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  padding: 16px 18px;
+  position: relative;
+  overflow: hidden;
+  transition: border-color 0.25s, transform 0.2s;
+  cursor: default;
+}
+.kpi-card:hover { border-color: var(--border3); transform: translateY(-2px); }
+.kpi-card::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: var(--kpi-color, var(--amber));
+  box-shadow: 0 0 8px var(--kpi-color, var(--amber));
+}
+.kpi-card.c-amber  { --kpi-color: var(--amber); }
+.kpi-card.c-cyan   { --kpi-color: var(--cyan); }
+.kpi-card.c-green  { --kpi-color: var(--green); }
+.kpi-card.c-red    { --kpi-color: var(--red); }
+.kpi-card.c-purple { --kpi-color: var(--purple); }
+
+.kpi-card-bg-icon {
+  position: absolute; right: 12px; bottom: 8px;
+  font-size: 28px; opacity: 0.04;
+  pointer-events: none;
+}
+.kpi-label {
+  font-size: 0.62rem; font-weight: 600;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--text3); margin-bottom: 8px;
+}
+.kpi-value {
+  font-family: var(--font-mono);
+  font-size: 1.6rem; font-weight: 400;
+  color: var(--kpi-color, var(--amber));
+  line-height: 1; transition: color 0.3s;
+}
+.kpi-unit { font-size: 0.62rem; color: var(--text3); margin-top: 5px; }
+.kpi-bar-wrap {
+  height: 3px; background: var(--border); border-radius: 2px;
+  overflow: hidden; margin-top: 8px;
+}
+.kpi-bar {
+  height: 100%;
+  background: var(--kpi-color, var(--amber));
+  border-radius: 2px;
+  transition: width 0.6s cubic-bezier(.4,0,.2,1);
+  box-shadow: 0 0 6px var(--kpi-color, var(--amber));
+}
+
+/* ══════════════════════════════════════
+   GRIDS
+══════════════════════════════════════ */
+.g2  { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+.g3  { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 18px; }
+.g4  { display: grid; grid-template-columns: repeat(4,1fr); gap: 14px; }
+.g12 { display: grid; grid-template-columns: 1fr 2fr; gap: 18px; }
+.g21 { display: grid; grid-template-columns: 2fr 1fr; gap: 18px; }
+.mb16 { margin-bottom: 16px; }
+.mb22 { margin-bottom: 22px; }
+
+/* ══════════════════════════════════════
+   INPUTS
+══════════════════════════════════════ */
+input[type="number"], input[type="text"] {
+  background: rgba(255,229,102,0.04);
+  border: 1px solid var(--yellow-border);
+  border-radius: var(--r-sm);
+  color: var(--yellow-input);
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  padding: 5px 8px;
+  width: 100%;
+  transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+  -moz-appearance: textfield;
+}
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; }
+input[type="number"]:focus, input[type="text"]:focus {
+  outline: none;
+  border-color: var(--amber);
+  background: rgba(255,229,102,0.08);
+  box-shadow: 0 0 0 3px var(--amber-glow);
+}
+input[type="number"].invalid { border-color: var(--red); background: rgba(255,61,90,0.06); }
+
+/* ══════════════════════════════════════
+   TABLES
+══════════════════════════════════════ */
+.tbl { width: 100%; border-collapse: collapse; }
+.tbl th {
+  padding: 8px 12px;
+  background: var(--surface2);
+  font-size: 0.62rem; font-weight: 700;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--text3);
+  border-bottom: 1px solid var(--border2);
+  text-align: left;
+  white-space: nowrap;
+}
+.tbl th.center { text-align: center; }
+.tbl td {
+  padding: 7px 12px;
+  border-bottom: 1px solid rgba(30,40,64,0.6);
+  font-size: 0.78rem; vertical-align: middle;
+}
+.tbl td.center { text-align: center; }
+.tbl tr:last-child td { border-bottom: none; }
+.tbl tr:hover td { background: rgba(255,255,255,0.015); }
+.tbl tr.section-row td {
+  padding: 6px 12px;
+  background: var(--surface2);
+  font-size: 0.6rem; font-weight: 700;
+  letter-spacing: 0.14em; text-transform: uppercase;
+}
+.tbl tr.total-row td {
+  background: rgba(245,166,35,0.05);
+  border-top: 1px solid var(--border2);
+  font-weight: 600; color: var(--amber);
+}
+.tbl-small input {
+  width: 72px; min-width: unset;
+  padding: 3px 6px; font-size: 0.72rem;
+  text-align: center;
+}
+
+.t-label { color: var(--text2); font-size: 0.76rem; }
+.t-unit  { color: var(--text3); font-size: 0.66rem; }
+.t-calc  { font-family: var(--font-mono); color: var(--cyan); font-size: 0.78rem; }
+.t-calc.green  { color: var(--green); }
+.t-calc.amber  { color: var(--amber); font-weight: 600; }
+.t-calc.red    { color: var(--red); }
+
+/* ══════════════════════════════════════
+   PARAM ROWS (furnace settings)
+══════════════════════════════════════ */
+.param-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+.param-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 9px 16px;
+  border-bottom: 1px solid rgba(30,40,64,0.6);
+  gap: 12px;
+}
+.param-row:nth-child(odd) { background: rgba(255,255,255,0.008); }
+.param-row:hover { background: rgba(255,255,255,0.018); }
+.param-label { font-size: 0.74rem; color: var(--text2); }
+.param-input { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+.param-input input { width: 80px; }
+.param-unit { font-size: 0.65rem; color: var(--text3); min-width: 30px; text-align: right; }
+
+/* ══════════════════════════════════════
+   ALERT / PILL
+══════════════════════════════════════ */
+.alert {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 14px;
+  border-radius: var(--r-md);
+  font-size: 0.76rem;
+  border: 1px solid;
+}
+.alert-ok    { background: rgba(0,230,118,0.07); border-color: rgba(0,230,118,0.2); color: var(--green); }
+.alert-warn  { background: rgba(245,166,35,0.07); border-color: rgba(245,166,35,0.2); color: var(--amber); }
+.alert-error { background: var(--red-glow); border-color: rgba(255,61,90,0.3); color: var(--red); }
+
+/* ══════════════════════════════════════
+   VALIDATION SUMMARY
+══════════════════════════════════════ */
+.validation-pills {
+  display: flex; flex-wrap: wrap; gap: 8px;
+  padding: 12px 16px;
+}
+.vpill {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 4px 10px; border-radius: 20px;
+  font-size: 0.65rem; font-weight: 600;
+  letter-spacing: 0.05em;
+}
+.vpill.ok    { background: rgba(0,230,118,0.1); color: var(--green); border: 1px solid rgba(0,230,118,0.2); }
+.vpill.warn  { background: rgba(245,166,35,0.1); color: var(--amber); border: 1px solid rgba(245,166,35,0.25); }
+.vpill.error { background: var(--red-glow); color: var(--red); border: 1px solid rgba(255,61,90,0.2); }
+
+/* ══════════════════════════════════════
+   SUMMARY ROWS
+══════════════════════════════════════ */
+.sum-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 8px 16px;
+  border-bottom: 1px solid rgba(30,40,64,0.5);
+  font-size: 0.78rem;
+}
+.sum-row:last-child { border-bottom: none; }
+.sum-row:nth-child(odd) { background: rgba(255,255,255,0.01); }
+.sum-row .sl { color: var(--text2); }
+.sum-row .sv { font-family: var(--font-mono); color: var(--cyan); }
+.sum-row .sv.amber { color: var(--amber); font-weight: 600; }
+.sum-row .sv.green { color: var(--green); }
+.sum-row .sv.red   { color: var(--red); }
+.sum-row.total-row { background: rgba(245,166,35,0.05); border-top: 1px solid var(--border2); }
+.sum-row.total-row .sl { font-weight: 700; color: var(--text); }
+.sum-row.total-row .sv { color: var(--amber); font-weight: 700; font-size: 0.88rem; }
+
+/* ══════════════════════════════════════
+   HEAT ITEMS
+══════════════════════════════════════ */
+.heat-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 9px 16px;
+  border-bottom: 1px solid rgba(30,40,64,0.5);
+  font-size: 0.78rem;
+}
+.heat-row:last-child { border-bottom: none; }
+.heat-row:nth-child(odd) { background: rgba(0,212,255,0.02); }
+.heat-row .hl { color: var(--text2); }
+.heat-row .hv { font-family: var(--font-mono); color: var(--cyan); }
+.heat-row.total-heat { background: rgba(245,166,35,0.05); border-top: 1px solid var(--border2); }
+.heat-row.total-heat .hl { font-weight: 700; }
+.heat-row.total-heat .hv { color: var(--amber); font-size: 0.9rem; }
+
+/* ══════════════════════════════════════
+   PROGRESS BAR
+══════════════════════════════════════ */
+.progress-wrap {
+  height: 6px; background: var(--border); border-radius: 3px;
+  overflow: hidden; margin-top: 8px;
+}
+.progress-fill {
+  height: 100%; border-radius: 3px;
+  transition: width 0.6s cubic-bezier(.4,0,.2,1), background 0.3s;
+}
+
+/* ══════════════════════════════════════
+   CHARTS
+══════════════════════════════════════ */
+.chart-wrap { position: relative; padding: 16px; }
+.chart-wrap canvas { max-height: 260px; }
+
+/* ══════════════════════════════════════
+   BATCH LOG
+══════════════════════════════════════ */
+.batch-toolbar {
+  display: flex; gap: 10px; align-items: center;
+  padding: 12px 16px;
+  background: var(--surface2);
+  border-bottom: 1px solid var(--border);
+}
+.batch-table-wrap { overflow-x: auto; }
+.batch-empty {
+  padding: 32px; text-align: center;
+  color: var(--text3); font-size: 0.78rem;
+}
+.batch-empty span { font-size: 28px; display: block; margin-bottom: 8px; opacity: 0.3; }
+
+/* ══════════════════════════════════════
+   TOOLTIP
+══════════════════════════════════════ */
+[data-tip] { position: relative; cursor: help; }
+[data-tip]::after {
+  content: attr(data-tip);
+  position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%);
+  background: #1a2235; color: var(--text);
+  padding: 6px 10px; border-radius: var(--r-sm);
+  font-size: 0.66rem; white-space: nowrap;
+  border: 1px solid var(--border2);
+  pointer-events: none; opacity: 0;
+  transition: opacity 0.2s;
+  margin-bottom: 6px; z-index: 999;
+}
+[data-tip]:hover::after { opacity: 1; }
+
+/* ══════════════════════════════════════
+   TOAST
+══════════════════════════════════════ */
+#toast-container {
+  position: fixed; bottom: 24px; right: 24px;
+  z-index: 9999; display: flex; flex-direction: column; gap: 10px;
+}
+.toast {
+  display: flex; align-items: center; gap: 10px;
+  padding: 12px 18px;
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  border-radius: var(--r-lg);
+  font-size: 0.78rem;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+  animation: slideIn 0.3s ease, fadeOut 0.3s ease 2.7s forwards;
+  max-width: 320px;
+}
+.toast.success { border-left: 3px solid var(--green); }
+.toast.warning { border-left: 3px solid var(--amber); }
+.toast.error   { border-left: 3px solid var(--red); }
+@keyframes slideIn { from { transform: translateX(20px); opacity:0; } to { transform:none; opacity:1; } }
+@keyframes fadeOut { to { opacity:0; transform: translateX(10px); } }
+
+/* ══════════════════════════════════════
+   EXPORT MODAL
+══════════════════════════════════════ */
+.modal-overlay {
+  position: fixed; inset: 0; z-index: 500;
+  background: rgba(0,0,0,0.75); backdrop-filter: blur(4px);
+  display: none; place-items: center;
+}
+.modal-overlay.open { display: grid; }
+.modal {
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: var(--r-lg);
+  width: min(500px, 90vw);
+  box-shadow: 0 24px 80px rgba(0,0,0,0.8);
+  animation: fadeUp 0.25s ease;
+}
+.modal-header {
+  padding: 18px 22px;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.modal-title { font-size: 0.9rem; font-weight: 700; }
+.modal-close {
+  width: 28px; height: 28px;
+  background: var(--surface3); border: 1px solid var(--border2);
+  border-radius: var(--r-sm); cursor: pointer;
+  color: var(--text3); font-size: 14px;
+  display: grid; place-items: center;
+  transition: all 0.2s;
+}
+.modal-close:hover { color: var(--text); border-color: var(--border3); }
+.modal-body { padding: 22px; display: flex; flex-direction: column; gap: 12px; }
+.modal-footer { padding: 14px 22px; border-top: 1px solid var(--border); display: flex; gap: 10px; justify-content: flex-end; }
+
+/* ══════════════════════════════════════
+   PRINT STYLES
+══════════════════════════════════════ */
+@media print {
+  .header, .nav-bar, .info-strip, .btn, #toast-container, .modal-overlay { display: none !important; }
+  body { background: white; color: black; }
+  .main { padding: 0; }
+  .card { border: 1px solid #ccc; box-shadow: none; }
+  .tab-pane { display: block !important; page-break-after: always; }
+}
+
+/* ══════════════════════════════════════
+   RESPONSIVE
+══════════════════════════════════════ */
+@media (max-width: 1100px) {
+  .g4 { grid-template-columns: repeat(2,1fr); }
+}
+@media (max-width: 768px) {
+  .main { padding: 16px; }
+  .g2, .g3, .g12, .g21 { grid-template-columns: 1fr; }
+  .param-grid { grid-template-columns: 1fr; }
+  .kpi-strip { grid-template-columns: repeat(2,1fr); }
+  .header { padding: 0 16px; }
+  .nav-bar { padding: 0 12px; }
+}
+</style>
+</head>
+<body>
+<div class="bg-grid"></div>
+<div class="bg-glow"></div>
+
+<!-- ════════ HEADER ════════ -->
+<header class="header">
+  <div class="logo-wrap">
+    <div class="logo-icon">🔥</div>
+    <div class="logo-text">
+      <h1><em>FeCr</em> Burden Sheet</h1>
+      <div class="logo-sub">SAF1 · Submerged Arc Furnace · 60 MVA</div>
+    </div>
+  </div>
+  <div class="header-center">
+    <div class="status-dot"></div>
+    <span class="status-text">Live Calculation</span>
+  </div>
+  <div class="header-right">
+    <span class="badge badge-amber">⬛ Yellow = Editable</span>
+    <span class="badge badge-cyan" id="hdr-date">—</span>
+    <button class="btn btn-ghost" onclick="openModal('export-modal')">⬇ Export</button>
+    <button class="btn btn-primary" onclick="recalcAll(); toast('Recalculated successfully','success')">⚡ Recalculate</button>
+  </div>
+</header>
+
+<!-- ════════ NAV TABS ════════ -->
+<nav class="nav-bar">
+  <button class="nav-tab active" data-tab="t-inputs" onclick="switchTab(this,'t-inputs')">
+    <span class="nav-tab-num">01</span> Inputs
+  </button>
+  <button class="nav-tab" data-tab="t-analysis" onclick="switchTab(this,'t-analysis')">
+    <span class="nav-tab-num">02</span> Material Analysis
+  </button>
+  <button class="nav-tab" data-tab="t-results" onclick="switchTab(this,'t-results')">
+    <span class="nav-tab-num">03</span> Balance Results
+  </button>
+  <button class="nav-tab" data-tab="t-heat" onclick="switchTab(this,'t-heat')">
+    <span class="nav-tab-num">04</span> Heat &amp; Energy
+  </button>
+  <button class="nav-tab" data-tab="t-charts" onclick="switchTab(this,'t-charts')">
+    <span class="nav-tab-num">05</span> Charts
+  </button>
+  <button class="nav-tab" data-tab="t-log" onclick="switchTab(this,'t-log')">
+    <span class="nav-tab-num">06</span> Batch Log
+  </button>
+</nav>
+
+<!-- ════════════════════════════════
+     MAIN
+════════════════════════════════ -->
+<main class="main">
+
+<!-- ════════ TAB 1: INPUTS ════════ -->
+<section class="tab-pane active" id="t-inputs">
+
+  <!-- INFO STRIP -->
+  <div class="info-strip">
+    <b>⚙ Furnace:</b> SAF1 — 60 MVA Ferro Alloys
+    <span class="sep">|</span>
+    Change <b>yellow fields</b> and press ⚡ Recalculate or edit any field (auto-triggers)
+    <span class="sep">|</span>
+    <span style="color:var(--cyan)">📊 6 Tabs: Inputs → Analysis → Results → Heat → Charts → Log</span>
+    <span style="margin-left:auto; color:var(--amber)" id="validation-status">✓ All inputs valid</span>
+  </div>
+
+  <!-- KPI STRIP -->
+  <div class="kpi-strip mb22">
+    <div class="kpi-card c-amber">
+      <div class="kpi-label" data-tip="Total metal produced in alloy">Alloy Output</div>
+      <div class="kpi-value" id="kpi-alloy">—</div>
+      <div class="kpi-unit">Kg / batch</div>
+      <div class="kpi-card-bg-icon">⚗</div>
+    </div>
+    <div class="kpi-card c-cyan">
+      <div class="kpi-label" data-tip="Total slag generated">Slag Output</div>
+      <div class="kpi-value" id="kpi-slag">—</div>
+      <div class="kpi-unit">Kg / batch</div>
+      <div class="kpi-card-bg-icon">🪨</div>
+    </div>
+    <div class="kpi-card c-green">
+      <div class="kpi-label" data-tip="Slag to alloy ratio">Slag/Alloy</div>
+      <div class="kpi-value" id="kpi-sa-ratio">—</div>
+      <div class="kpi-unit">ratio</div>
+      <div class="kpi-card-bg-icon">⚖</div>
+    </div>
+    <div class="kpi-card c-amber">
+      <div class="kpi-label" data-tip="Fixed Carbon required for all reductions">FC Required</div>
+      <div class="kpi-value" id="kpi-fc-req">—</div>
+      <div class="kpi-unit">Kg / batch</div>
+      <div class="kpi-bar-wrap"><div class="kpi-bar" id="kpi-fc-bar" style="width:0%"></div></div>
+    </div>
+    <div class="kpi-card c-green">
+      <div class="kpi-label" data-tip="Fixed Carbon available from reductants">FC Available</div>
+      <div class="kpi-value" id="kpi-fc-avail">—</div>
+      <div class="kpi-unit">Kg / batch</div>
+    </div>
+    <div class="kpi-card c-cyan">
+      <div class="kpi-label" data-tip="(Avail/Req)×100">FC %</div>
+      <div class="kpi-value" id="kpi-fc-pct">—</div>
+      <div class="kpi-unit">% availability</div>
+    </div>
+    <div class="kpi-card c-purple">
+      <div class="kpi-label" data-tip="Total ore input (dry basis)">Total Ore</div>
+      <div class="kpi-value" id="kpi-tot-ore">—</div>
+      <div class="kpi-unit">Kg dry</div>
+      <div class="kpi-card-bg-icon">⛏</div>
+    </div>
+    <div class="kpi-card c-cyan">
+      <div class="kpi-label" data-tip="Total reductant (dry basis)">Total Red.</div>
+      <div class="kpi-value" id="kpi-tot-red">—</div>
+      <div class="kpi-unit">Kg dry</div>
+    </div>
+  </div>
+
+  <!-- VALIDATION PILLS -->
+  <div class="card mb22">
+    <div class="card-header">
+      <span class="card-title">📋 Validation &amp; Checks</span>
+    </div>
+    <div class="validation-pills" id="vpills-wrap">
+      <span class="vpill ok">✓ Loading...</span>
+    </div>
+  </div>
+
+  <div class="g2 mb22">
+
+    <!-- FURNACE PARAMETERS -->
+    <div>
+      <div class="section-hd"><span class="section-hd-label">Furnace Parameters</span><div class="section-hd-line"></div></div>
+      <div class="card">
+        <div class="card-header"><span class="card-title">Operating Conditions</span></div>
+        <div class="param-grid">
+          <div class="param-row">
+            <span class="param-label">F/C Power Consumption</span>
+            <div class="param-input"><input type="number" id="p-power" value="830" step="10"><span class="param-unit">MWh</span></div>
+          </div>
+          <div class="param-row">
+            <span class="param-label">No. of Batches / Day</span>
+            <div class="param-input"><input type="number" id="p-batches" value="1" step="1" min="1"><span class="param-unit"></span></div>
+          </div>
+          <div class="param-row">
+            <span class="param-label">Electrode Diameter</span>
+            <div class="param-input"><input type="number" id="p-elec-dia" value="1.6" step="0.05"><span class="param-unit">m</span></div>
+          </div>
+          <div class="param-row">
+            <span class="param-label">F/C Top Diameter</span>
+            <div class="param-input"><input type="number" id="p-top-dia" value="10.32" step="0.1"><span class="param-unit">m</span></div>
+          </div>
+          <div class="param-row">
+            <span class="param-label">Tap Hole Diameter</span>
+            <div class="param-input"><input type="number" id="p-tap-dia" value="120" step="5"><span class="param-unit">mm</span></div>
+          </div>
+          <div class="param-row">
+            <span class="param-label">No. of Tappings / Day</span>
+            <div class="param-input"><input type="number" id="p-tappings" value="12" step="1"><span class="param-unit">Nos</span></div>
+          </div>
+          <div class="param-row">
+            <span class="param-label">Tapping Idle Duration</span>
+            <div class="param-input"><input type="number" id="p-idle" value="36" step="1"><span class="param-unit">min</span></div>
+          </div>
+          <div class="param-row">
+            <span class="param-label">F/C Top Temperature</span>
+            <div class="param-input"><input type="number" id="p-top-temp" value="650" step="10"><span class="param-unit">°C</span></div>
+          </div>
+          <div class="param-row">
+            <span class="param-label">Under Hood Temperature</span>
+            <div class="param-input"><input type="number" id="p-hood-temp" value="497" step="5"><span class="param-unit">°C</span></div>
+          </div>
+          <div class="param-row">
+            <span class="param-label">F/C Top Atmos. Temp</span>
+            <div class="param-input"><input type="number" id="p-atmos-temp" value="70" step="5"><span class="param-unit">°C</span></div>
+          </div>
+          <div class="param-row">
+            <span class="param-label">Inside Tap Hole Temp</span>
+            <div class="param-input"><input type="number" id="p-th-temp" value="1000" step="10"><span class="param-unit">°C</span></div>
+          </div>
+          <div class="param-row">
+            <span class="param-label">Atmos. Temp at TH</span>
+            <div class="param-input"><input type="number" id="p-th-atmos" value="80" step="5"><span class="param-unit">°C</span></div>
+          </div>
+          <div class="param-row">
+            <span class="param-label">Liquid Alloy Temp (t1)</span>
+            <div class="param-input"><input type="number" id="p-alloy-temp" value="1200" step="10"><span class="param-unit">°C</span></div>
+          </div>
+          <div class="param-row">
+            <span class="param-label">Shell Cooling Flow</span>
+            <div class="param-input"><input type="number" id="p-cool-flow" value="61" step="1"><span class="param-unit">M³/h</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PARTITION ASSUMPTIONS -->
+    <div>
+      <div class="section-hd"><span class="section-hd-label">Partition Assumptions</span><div class="section-hd-line"></div></div>
+      <div class="card mb16">
+        <div class="card-header">
+          <span class="card-title">Element Split — Metal % · Slag % · Loss % <em>(auto)</em></span>
+        </div>
+        <table class="tbl">
+          <thead><tr>
+            <th>Element</th>
+            <th class="center">Metal %</th>
+            <th class="center">Slag %</th>
+            <th class="center">Loss % (calc)</th>
+          </tr></thead>
+          <tbody>
+            <tr><td class="t-label">Cr</td>
+              <td class="center"><input type="number" id="pt-cr-m" value="91" step="0.5" style="width:72px;text-align:center"></td>
+              <td class="center"><input type="number" id="pt-cr-s" value="8.5" step="0.5" style="width:72px;text-align:center"></td>
+              <td class="center t-calc" id="pt-cr-l">0.5</td></tr>
+            <tr><td class="t-label">Fe</td>
+              <td class="center"><input type="number" id="pt-fe-m" value="93" step="0.5" style="width:72px;text-align:center"></td>
+              <td class="center"><input type="number" id="pt-fe-s" value="6.5" step="0.5" style="width:72px;text-align:center"></td>
+              <td class="center t-calc" id="pt-fe-l">0.5</td></tr>
+            <tr><td class="t-label">Si</td>
+              <td class="center"><input type="number" id="pt-si-m" value="18" step="1" style="width:72px;text-align:center"></td>
+              <td class="center"><input type="number" id="pt-si-s" value="82" step="1" style="width:72px;text-align:center"></td>
+              <td class="center t-calc" id="pt-si-l">0</td></tr>
+            <tr><td class="t-label">P</td>
+              <td class="center"><input type="number" id="pt-p-m" value="65" step="1" style="width:72px;text-align:center"></td>
+              <td class="center"><input type="number" id="pt-p-s" value="15" step="1" style="width:72px;text-align:center"></td>
+              <td class="center t-calc" id="pt-p-l">20</td></tr>
+            <tr><td class="t-label">S</td>
+              <td class="center"><input type="number" id="pt-s-m" value="10" step="1" style="width:72px;text-align:center"></td>
+              <td class="center"><input type="number" id="pt-s-s" value="55" step="1" style="width:72px;text-align:center"></td>
+              <td class="center t-calc" id="pt-s-l">35</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- INPUT QUANTITIES TABLE -->
+      <div class="section-hd"><span class="section-hd-label">Input Quantities</span><div class="section-hd-line"></div></div>
+      <div class="card">
+        <div class="card-header"><span class="card-title">Wet Qty (Kg) · Moisture (%) · Dry Qty (Kg) <em>auto</em></span></div>
+        <table class="tbl">
+          <thead><tr>
+            <th>Material</th>
+            <th class="center">Wet Qty (Kg)</th>
+            <th class="center">Moisture (%)</th>
+            <th class="center">Dry Qty (Kg)</th>
+          </tr></thead>
+          <tbody id="qty-table-body"></tbody>
+        </table>
+      </div>
+    </div>
+
+  </div><!-- end g2 -->
+</section>
+
+<!-- ════════ TAB 2: ANALYSIS ════════ -->
+<section class="tab-pane" id="t-analysis">
+
+  <div class="info-strip">
+    Edit the <b>yellow chemical composition cells</b>. Values are in % weight. Each column should sum near 100%.
+    <span style="margin-left:auto; color:var(--amber)" id="analysis-sum-status">✓</span>
+  </div>
+
+  <!-- ORE ANALYSIS -->
+  <div class="section-hd mb16"><span class="section-hd-label">Ore Analysis (%)</span><div class="section-hd-line"></div></div>
+  <div class="card mb22" style="overflow-x:auto">
+    <div class="card-header"><span class="card-title">Chemical Composition — Ore &amp; Burden Minerals</span></div>
+    <table class="tbl tbl-small">
+      <thead><tr>
+        <th>Component</th>
+        <th class="center">PELLET</th>
+        <th class="center">BQT</th>
+        <th class="center">Pellet (D)</th>
+        <th class="center">J.LUMPY</th>
+        <th class="center">FBL</th>
+        <th class="center">Total Sum</th>
+      </tr></thead>
+      <tbody id="ore-tbody"></tbody>
+    </table>
+  </div>
+
+  <div class="g2 mb22">
+
+    <!-- REDUCTANT ANALYSIS -->
+    <div>
+      <div class="section-hd mb16"><span class="section-hd-label">Reductant Analysis (%)</span><div class="section-hd-line"></div></div>
+      <div class="card" style="overflow-x:auto">
+        <div class="card-header"><span class="card-title">FC / Ash / VM &amp; Chemical</span></div>
+        <table class="tbl tbl-small">
+          <thead><tr>
+            <th>Component</th>
+            <th class="center">JCL Coke</th>
+            <th class="center">Mettrade</th>
+            <th class="center">Gas Coke</th>
+            <th class="center">A Coal</th>
+          </tr></thead>
+          <tbody id="red-tbody"></tbody>
+        </table>
+        <!-- FC / Ash / VM separator -->
+        <div class="card-header" style="border-top:1px solid var(--border)"><span class="card-title">Fixed Carbon · Ash · Volatile Matter</span></div>
+        <table class="tbl tbl-small">
+          <thead><tr><th>Property</th><th class="center">JCL Coke</th><th class="center">Mettrade</th><th class="center">Gas Coke</th><th class="center">A Coal</th></tr></thead>
+          <tbody>
+            <tr>
+              <td class="t-label">FC (%)</td>
+              <td class="center"><input type="number" id="r-fc-0" value="85.47" step="0.1" style="width:72px;text-align:center"></td>
+              <td class="center"><input type="number" id="r-fc-1" value="84.32" step="0.1" style="width:72px;text-align:center"></td>
+              <td class="center"><input type="number" id="r-fc-2" value="85.52" step="0.1" style="width:72px;text-align:center"></td>
+              <td class="center"><input type="number" id="r-fc-3" value="90.91" step="0.1" style="width:72px;text-align:center"></td>
+            </tr>
+            <tr>
+              <td class="t-label">Ash (%)</td>
+              <td class="center"><input type="number" id="r-ash-0" value="13.35" step="0.1" style="width:72px;text-align:center"></td>
+              <td class="center"><input type="number" id="r-ash-1" value="14.49" step="0.1" style="width:72px;text-align:center"></td>
+              <td class="center"><input type="number" id="r-ash-2" value="7.88" step="0.1" style="width:72px;text-align:center"></td>
+              <td class="center"><input type="number" id="r-ash-3" value="6.46" step="0.1" style="width:72px;text-align:center"></td>
+            </tr>
+            <tr>
+              <td class="t-label">VM (%) <em style="color:var(--cyan);font-size:0.62rem">auto</em></td>
+              <td class="center t-calc" id="r-vm-0">—</td>
+              <td class="center t-calc" id="r-vm-1">—</td>
+              <td class="center t-calc" id="r-vm-2">—</td>
+              <td class="center t-calc" id="r-vm-3">—</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- FLUX ANALYSIS -->
+    <div>
+      <div class="section-hd mb16"><span class="section-hd-label">Flux &amp; Others Analysis (%)</span><div class="section-hd-line"></div></div>
+      <div class="card" style="overflow-x:auto">
+        <div class="card-header"><span class="card-title">Chemical Composition — Flux Materials</span></div>
+        <table class="tbl tbl-small">
+          <thead><tr>
+            <th>Component</th>
+            <th class="center">OLIVINE</th>
+            <th class="center">MAGNESITE</th>
+            <th class="center">QUARTZ</th>
+            <th class="center">BAUXITE</th>
+          </tr></thead>
+          <tbody id="flx-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ════════ TAB 3: RESULTS ════════ -->
+<section class="tab-pane" id="t-results">
+
+  <div class="kpi-strip mb22">
+    <div class="kpi-card c-amber">
+      <div class="kpi-label">Slag / Alloy</div>
+      <div class="kpi-value" id="r-kpi-sa">—</div>
+      <div class="kpi-unit">ratio</div>
+    </div>
+    <div class="kpi-card c-cyan">
+      <div class="kpi-label">Basicity Index</div>
+      <div class="kpi-value" id="r-kpi-basi">—</div>
+      <div class="kpi-unit">(CaO+MgO)/SiO₂</div>
+    </div>
+    <div class="kpi-card c-green">
+      <div class="kpi-label">Cr/Fe in Alloy</div>
+      <div class="kpi-value" id="r-kpi-crfe-a">—</div>
+      <div class="kpi-unit">ratio</div>
+    </div>
+    <div class="kpi-card c-purple">
+      <div class="kpi-label">Cr/Fe in Ore</div>
+      <div class="kpi-value" id="r-kpi-crfe-o">—</div>
+      <div class="kpi-unit">ratio</div>
+    </div>
+    <div class="kpi-card c-cyan">
+      <div class="kpi-label">MgO / Al₂O₃</div>
+      <div class="kpi-value" id="r-kpi-mgoal">—</div>
+      <div class="kpi-unit">ratio</div>
+    </div>
+    <div class="kpi-card c-amber">
+      <div class="kpi-label">Ore Rate (Dry)</div>
+      <div class="kpi-value" id="r-kpi-ore-d">—</div>
+      <div class="kpi-unit">Kg ore / Kg alloy</div>
+    </div>
+    <div class="kpi-card c-green">
+      <div class="kpi-label">Reductant / MT</div>
+      <div class="kpi-value" id="r-kpi-red-mt">—</div>
+      <div class="kpi-unit">Kg red / Kg alloy</div>
+    </div>
+    <div class="kpi-card c-cyan">
+      <div class="kpi-label">FC Avail. Rate</div>
+      <div class="kpi-value" id="r-kpi-fc-rate">—</div>
+      <div class="kpi-unit">%</div>
+    </div>
+  </div>
+
+  <div class="g2 mb22">
+
+    <!-- ALLOY COMPOSITION -->
+    <div>
+      <div class="section-hd"><span class="section-hd-label">Alloy Composition</span><div class="section-hd-line"></div></div>
+      <div class="card">
+        <div class="card-header"><span class="card-title">Metal Output Breakdown</span></div>
+        <table class="tbl">
+          <thead><tr><th>Element</th><th class="center">Amount (Kg)</th><th class="center">%</th></tr></thead>
+          <tbody>
+            <tr><td class="t-label">Cr</td><td class="center t-calc amber" id="al-cr-kg">—</td><td class="center t-calc" id="al-cr-pct">—</td></tr>
+            <tr><td class="t-label">Fe</td><td class="center t-calc" id="al-fe-kg">—</td><td class="center t-calc" id="al-fe-pct">—</td></tr>
+            <tr><td class="t-label">Si</td><td class="center t-calc" id="al-si-kg">—</td><td class="center t-calc" id="al-si-pct">—</td></tr>
+            <tr><td class="t-label">P</td><td class="center t-calc" id="al-p-kg">—</td><td class="center t-calc" id="al-p-pct">—</td></tr>
+            <tr><td class="t-label">S</td><td class="center t-calc" id="al-s-kg">—</td><td class="center t-calc" id="al-s-pct">—</td></tr>
+            <tr><td class="t-label">C</td><td class="center t-calc" id="al-c-kg">—</td><td class="center t-calc" id="al-c-pct">—</td></tr>
+            <tr class="total-row"><td>Total</td><td class="center t-calc amber" id="al-total">—</td><td class="center">100%</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- SLAG COMPOSITION -->
+    <div>
+      <div class="section-hd"><span class="section-hd-label">Slag Composition</span><div class="section-hd-line"></div></div>
+      <div class="card">
+        <div class="card-header"><span class="card-title">Slag Output Breakdown</span></div>
+        <table class="tbl">
+          <thead><tr><th>Compound</th><th class="center">Amount (Kg)</th><th class="center">%</th></tr></thead>
+          <tbody>
+            <tr><td class="t-label">Cr₂O₃</td><td class="center t-calc" id="sl-cr2o3">—</td><td class="center t-calc" id="sl-cr2o3-pct">—</td></tr>
+            <tr><td class="t-label">FeO</td><td class="center t-calc" id="sl-feo">—</td><td class="center t-calc" id="sl-feo-pct">—</td></tr>
+            <tr><td class="t-label">SiO₂</td><td class="center t-calc" id="sl-sio2">—</td><td class="center t-calc" id="sl-sio2-pct">—</td></tr>
+            <tr><td class="t-label">CaO</td><td class="center t-calc" id="sl-cao">—</td><td class="center t-calc" id="sl-cao-pct">—</td></tr>
+            <tr><td class="t-label">Al₂O₃</td><td class="center t-calc" id="sl-al2o3">—</td><td class="center t-calc" id="sl-al2o3-pct">—</td></tr>
+            <tr><td class="t-label">MgO</td><td class="center t-calc" id="sl-mgo">—</td><td class="center t-calc" id="sl-mgo-pct">—</td></tr>
+            <tr><td class="t-label">P₂O₅</td><td class="center t-calc" id="sl-p2o5">—</td><td class="center t-calc" id="sl-p2o5-pct">—</td></tr>
+            <tr><td class="t-label">SO₃</td><td class="center t-calc" id="sl-so3">—</td><td class="center t-calc" id="sl-so3-pct">—</td></tr>
+            <tr class="total-row"><td>Total</td><td class="center t-calc amber" id="sl-total">—</td><td class="center">~100%</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- MATERIAL BALANCE + CARBON CONTROL -->
+  <div class="g2 mb22">
+
+    <!-- MATERIAL BALANCE -->
+    <div>
+      <div class="section-hd"><span class="section-hd-label">Overall Material Balance</span><div class="section-hd-line"></div></div>
+      <div class="card">
+        <div class="card-header"><span class="card-title">Input vs Output (Kg / batch)</span></div>
+        <div style="display:grid; grid-template-columns:1fr 1fr">
+          <div>
+            <div style="padding:8px 16px; font-size:0.62rem; font-weight:700; letter-spacing:0.12em; color:var(--amber); text-transform:uppercase; border-bottom:1px solid var(--border)">Input</div>
+            <div class="sum-row"><span class="sl">Ore (dry)</span><span class="sv" id="mb-ore">—</span></div>
+            <div class="sum-row"><span class="sl">Reductant (dry)</span><span class="sv" id="mb-red">—</span></div>
+            <div class="sum-row"><span class="sl">Flux (dry)</span><span class="sv" id="mb-flx">—</span></div>
+            <div class="sum-row total-row"><span class="sl">Total Input</span><span class="sv amber" id="mb-in-total">—</span></div>
+          </div>
+          <div style="border-left:1px solid var(--border)">
+            <div style="padding:8px 16px; font-size:0.62rem; font-weight:700; letter-spacing:0.12em; color:var(--cyan); text-transform:uppercase; border-bottom:1px solid var(--border)">Output</div>
+            <div class="sum-row"><span class="sl">Alloy</span><span class="sv green" id="mb-alloy">—</span></div>
+            <div class="sum-row"><span class="sl">Slag</span><span class="sv" id="mb-slag">—</span></div>
+            <div class="sum-row"><span class="sl">CO Gas</span><span class="sv" id="mb-co">—</span></div>
+            <div class="sum-row"><span class="sl">Losses</span><span class="sv" id="mb-loss">—</span></div>
+            <div class="sum-row"><span class="sl">LOI + VM</span><span class="sv" id="mb-loi">—</span></div>
+            <div class="sum-row total-row"><span class="sl">Total Output</span><span class="sv amber" id="mb-out-total">—</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CARBON BALANCE -->
+    <div>
+      <div class="section-hd"><span class="section-hd-label">Carbon Balance</span><div class="section-hd-line"></div></div>
+      <div class="card">
+        <div class="card-header"><span class="card-title">FC Required vs Available</span></div>
+        <div class="sum-row"><span class="sl">To reduce Cr₂O₃ → Cr</span><span class="sv" id="cb-cr">—</span></div>
+        <div class="sum-row"><span class="sl">To form Cr₇C₃</span><span class="sv" id="cb-cr7c3">—</span></div>
+        <div class="sum-row"><span class="sl">To reduce FeO → Fe</span><span class="sv" id="cb-feo">—</span></div>
+        <div class="sum-row"><span class="sl">To reduce Fe₂O₃ → FeO</span><span class="sv" id="cb-fe2o3">—</span></div>
+        <div class="sum-row"><span class="sl">To form Fe₃C</span><span class="sv" id="cb-fe3c">—</span></div>
+        <div class="sum-row"><span class="sl">To reduce SiO₂ → Si</span><span class="sv" id="cb-sio2si">—</span></div>
+        <div class="sum-row"><span class="sl">Other (P, S, SiO gas)</span><span class="sv" id="cb-other">—</span></div>
+        <div class="sum-row total-row"><span class="sl">Total FC Required</span><span class="sv amber" id="cb-req">—</span></div>
+        <div class="sum-row total-row"><span class="sl">Total FC Available</span><span class="sv green" id="cb-avail">—</span></div>
+        <div style="padding:12px 16px">
+          <div id="cb-alert" class="alert alert-ok">✅ FC surplus — system is balanced</div>
+          <div class="progress-wrap" style="margin-top:10px; height:8px">
+            <div class="progress-fill" id="cb-prog" style="width:0%"></div>
+          </div>
+          <div style="font-size:0.7rem; color:var(--text3); margin-top:5px" id="cb-pct-txt">—</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</section>
+
+<!-- ════════ TAB 4: HEAT & ENERGY ════════ -->
+<section class="tab-pane" id="t-heat">
+
+  <div class="kpi-strip mb22">
+    <div class="kpi-card c-amber">
+      <div class="kpi-label">Total Heat / MT FeCr</div>
+      <div class="kpi-value" id="h-kpi-total">—</div>
+      <div class="kpi-unit">MWh / MT alloy</div>
+    </div>
+    <div class="kpi-card c-cyan">
+      <div class="kpi-label">Gas Generation</div>
+      <div class="kpi-value" id="h-kpi-gas-nm3">—</div>
+      <div class="kpi-unit">NM³ / MT metal</div>
+    </div>
+    <div class="kpi-card c-green">
+      <div class="kpi-label">Gas Rate</div>
+      <div class="kpi-value" id="h-kpi-gas-hr">—</div>
+      <div class="kpi-unit">NM³ / hour</div>
+    </div>
+    <div class="kpi-card c-purple">
+      <div class="kpi-label">Moisture Evap.</div>
+      <div class="kpi-value" id="h-kpi-moist">—</div>
+      <div class="kpi-unit">Kg / MT alloy</div>
+    </div>
+  </div>
+
+  <div class="g3 mb22">
+
+    <!-- HEAT REQUIRED -->
+    <div>
+      <div class="section-hd"><span class="section-hd-label">Heat Required</span><div class="section-hd-line"></div></div>
+      <div class="card">
+        <div class="card-header"><span class="card-title">Formation Heat (MWh/MT)</span></div>
+        <div class="heat-row"><span class="hl">Metal formation</span><span class="hv" id="h-metal">—</span></div>
+        <div class="heat-row"><span class="hl">Slag formation</span><span class="hv" id="h-slag">—</span></div>
+        <div class="heat-row total-heat"><span class="hl">Metal + Slag Total</span><span class="hv" id="h-ms-tot">—</span></div>
+      </div>
+    </div>
+
+    <!-- HEAT LOSSES -->
+    <div>
+      <div class="section-hd"><span class="section-hd-label">Heat Losses</span><div class="section-hd-line"></div></div>
+      <div class="card">
+        <div class="card-header"><span class="card-title">Loss Breakdown (MWh/MT)</span></div>
+        <div class="heat-row"><span class="hl">Top surface radiation</span><span class="hv" id="h-top">—</span></div>
+        <div class="heat-row"><span class="hl">Furnace tapping</span><span class="hv" id="h-tap">—</span></div>
+        <div class="heat-row"><span class="hl">F/C bottom conduction</span><span class="hv" id="h-bot">—</span></div>
+        <div class="heat-row"><span class="hl">Shell cooling water</span><span class="hv" id="h-shell">—</span></div>
+        <div class="heat-row"><span class="hl">Moisture evaporation</span><span class="hv" id="h-moist">—</span></div>
+        <div class="heat-row total-heat"><span class="hl">Total Losses</span><span class="hv" id="h-loss-tot">—</span></div>
+      </div>
+    </div>
+
+    <!-- GAS COMPOSITION -->
+    <div>
+      <div class="section-hd"><span class="section-hd-label">Under Hood Gas</span><div class="section-hd-line"></div></div>
+      <div class="card">
+        <div class="card-header"><span class="card-title">Volumetric Composition (%)</span></div>
+        <div class="heat-row"><span class="hl">CO₂</span><span class="hv" id="g-co2">32.73</span></div>
+        <div class="heat-row"><span class="hl">H₂O</span><span class="hv" id="g-h2o">3.40</span></div>
+        <div class="heat-row"><span class="hl">N₂</span><span class="hv" id="g-n2">63.87</span></div>
+        <div class="heat-row"><span class="hl">O₂</span><span class="hv" id="g-o2">0.00</span></div>
+        <div class="heat-row total-heat"><span class="hl">Total</span><span class="hv">100.00%</span></div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- SHELL COOLING CALCULATION -->
+  <div class="g2">
+    <div>
+      <div class="section-hd"><span class="section-hd-label">Shell Cooling Parameters</span><div class="section-hd-line"></div></div>
+      <div class="card">
+        <div class="card-header"><span class="card-title">Water Cooling Circuit</span></div>
+        <div class="param-grid" style="grid-template-columns:1fr">
+          <div class="param-row"><span class="param-label">Cooling Water Flow Rate</span><div class="param-input"><input type="number" id="sc-flow" value="61" step="1"><span class="param-unit">M³/h</span></div></div>
+          <div class="param-row"><span class="param-label">Inlet Temperature</span><div class="param-input"><input type="number" id="sc-tin" value="41.3" step="0.1"><span class="param-unit">°C</span></div></div>
+          <div class="param-row"><span class="param-label">Outlet Temperature</span><div class="param-input"><input type="number" id="sc-tout" value="42.5" step="0.1"><span class="param-unit">°C</span></div></div>
+          <div class="param-row"><span class="param-label">Heat Removed (calc)</span><div class="param-input"><span class="t-calc amber" id="sc-heat">—</span><span class="param-unit">MWh</span></div></div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="section-hd"><span class="section-hd-label">F/C Bottom Geometry</span><div class="section-hd-line"></div></div>
+      <div class="card">
+        <div class="card-header"><span class="card-title">Lining Layer Dimensions</span></div>
+        <div class="param-grid" style="grid-template-columns:1fr">
+          <div class="param-row"><span class="param-label">Carbon Paste &amp; Block</span><div class="param-input"><input type="number" id="bl-carbon" value="1.1" step="0.05"><span class="param-unit">m</span></div></div>
+          <div class="param-row"><span class="param-label">Bricks (90%) Layer</span><div class="param-input"><input type="number" id="bl-90" value="0.232" step="0.01"><span class="param-unit">m</span></div></div>
+          <div class="param-row"><span class="param-label">Bricks (70%) Layer</span><div class="param-input"><input type="number" id="bl-70" value="0.232" step="0.01"><span class="param-unit">m</span></div></div>
+          <div class="param-row"><span class="param-label">Bricks (45%) Layer</span><div class="param-input"><input type="number" id="bl-45" value="0.464" step="0.01"><span class="param-unit">m</span></div></div>
+          <div class="param-row"><span class="param-label">Chamotte (Grog)</span><div class="param-input"><input type="number" id="bl-grog" value="0.09" step="0.01"><span class="param-unit">m</span></div></div>
+          <div class="param-row"><span class="param-label">External Dia of Bottom</span><div class="param-input"><input type="number" id="bl-extdia" value="11.69" step="0.1"><span class="param-unit">m</span></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</section>
+
+<!-- ════════ TAB 5: CHARTS ════════ -->
+<section class="tab-pane" id="t-charts">
+
+  <div class="g2 mb22">
+    <div>
+      <div class="section-hd"><span class="section-hd-label">Alloy Composition</span><div class="section-hd-line"></div></div>
+      <div class="card"><div class="chart-wrap"><canvas id="chart-alloy"></canvas></div></div>
+    </div>
+    <div>
+      <div class="section-hd"><span class="section-hd-label">Slag Composition</span><div class="section-hd-line"></div></div>
+      <div class="card"><div class="chart-wrap"><canvas id="chart-slag"></canvas></div></div>
+    </div>
+  </div>
+
+  <div class="g2 mb22">
+    <div>
+      <div class="section-hd"><span class="section-hd-label">Material Balance</span><div class="section-hd-line"></div></div>
+      <div class="card"><div class="chart-wrap"><canvas id="chart-balance"></canvas></div></div>
+    </div>
+    <div>
+      <div class="section-hd"><span class="section-hd-label">Heat Distribution</span><div class="section-hd-line"></div></div>
+      <div class="card"><div class="chart-wrap"><canvas id="chart-heat"></canvas></div></div>
+    </div>
+  </div>
+
+  <div>
+    <div class="section-hd"><span class="section-hd-label">Input Distribution</span><div class="section-hd-line"></div></div>
+    <div class="card"><div class="chart-wrap" style="height:220px"><canvas id="chart-input"></canvas></div></div>
+  </div>
+
+</section>
+
+<!-- ════════ TAB 6: BATCH LOG ════════ -->
+<section class="tab-pane" id="t-log">
+
+  <div class="card">
+    <div class="batch-toolbar">
+      <button class="btn btn-primary" onclick="saveBatch()">💾 Save Current Batch</button>
+      <button class="btn btn-ghost" onclick="exportCSV()">📄 Export CSV</button>
+      <button class="btn btn-danger" onclick="clearLog()">🗑 Clear All</button>
+      <span style="margin-left:auto; font-size:0.72rem; color:var(--text3)" id="log-count">0 entries</span>
+    </div>
+    <div class="batch-table-wrap">
+      <div class="batch-empty" id="log-empty">
+        <span>📋</span>
+        No batches saved yet. Click "Save Current Batch" to record the current calculation.
+      </div>
+      <table class="tbl" id="log-table" style="display:none">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Date/Time</th>
+            <th class="center">Alloy (Kg)</th>
+            <th class="center">Slag (Kg)</th>
+            <th class="center">Slag/Alloy</th>
+            <th class="center">FC Req (Kg)</th>
+            <th class="center">FC Avail</th>
+            <th class="center">FC%</th>
+            <th class="center">Basicity</th>
+            <th class="center">Cr/Fe</th>
+            <th class="center">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="log-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+</section>
+
+</main><!-- end .main -->
+
+<!-- ════════ EXPORT MODAL ════════ -->
+<div class="modal-overlay" id="export-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">⬇ Export Data</span>
+      <button class="modal-close" onclick="closeModal('export-modal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <button class="btn btn-primary" style="width:100%;justify-content:center" onclick="exportCSV();closeModal('export-modal')">📄 Export as CSV</button>
+      <button class="btn btn-ghost" style="width:100%;justify-content:center" onclick="printPage()">🖨 Print / Save as PDF</button>
+      <button class="btn btn-ghost" style="width:100%;justify-content:center" onclick="exportJSON()">{ } Export as JSON</button>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('export-modal')">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════════ TOAST CONTAINER ════════ -->
+<div id="toast-container"></div>
+
+<!-- ════════════════════════════════
+     JAVASCRIPT
+════════════════════════════════ -->
+<script>
+'use strict';
+// ═══════════════════════════════════════════════
+//  CONSTANTS — Default Chemical Compositions
+// ═══════════════════════════════════════════════
+const COMP_LABELS = ['LOI','Cr₂O₃','FeO','Fe₂O₃','SiO₂','CaO','Al₂O₃','MgO','P₂O₅','SO₃','UD'];
+
+const ORE_NAMES = ['PELLET','BQT','Pellet (D)','J.LUMPY','FBL'];
+const ORE_DATA = [
+  [-1.1,  49.54, 0, 21.65, 5.97,  1.02, 11.68, 10.2,  0.014, 0.3  ],
+  [10.85, 40.27, 0, 19.82, 6.53,  4.8,  10.13, 6.68,  0.016, 0.027],
+  [-1.3,  47.85, 0, 18.78, 11.23, 1.44, 8.61,  12.34, 0.016, 0.3  ],
+  [ 4.3,  32.13, 0, 12.37, 17.37, 3.07, 8.61,  21.11, 0.018, 0.322],
+  [ 8.6,  44.7,  0, 20.55, 5.58,  0.96, 11.14, 7.49,  0.014, 0.2  ],
+];
+const RED_NAMES = ['JCL Coke','Mettrade','Gas Coke','A Coal'];
+const RED_DATA = [
+  [0, 0, 0, 10.3,  60.8, 3.2, 7.2,  1.98, 0.55, 10.5],
+  [0, 0, 0, 10.3,  60.8, 3.2, 7.2,  1.98, 0.6,  9.7 ],
+  [0, 0, 0, 3.69,  57.1, 3,   19.2, 2.2,  0.94, 9   ],
+  [0, 0, 0, 15.1,  45.8, 1.8, 16,   0.5,  0.42, 9.5 ],
+];
+const FLX_NAMES = ['OLIVINE','MAGNESITE','QUARTZ','BAUXITE'];
+const FLX_DATA = [
+  [6.45,  0, 0, 12.09, 38.27, 1.84, 0.8,  40.25, 0.02,  0.042],
+  [45.2,  0, 0, 2.15,  6.49,  3.05, 0,    40.39, 0.146, 0    ],
+  [0.4,   0, 0, 0,     97.09, 0,    1.2,  0,     0,     0    ],
+  [32.6,  0, 0, 12.19, 4.1,   0,    50.2, 0,     0.1,   0    ],
+];
+
+// Input quantities (wet Kg, moisture %)
+const QTY_INPUTS = [
+  // [id, name, wet_default, mois_default, category, color]
+  ['o0','PELLET',     0,    2.1, 'ORE',       'var(--amber)'],
+  ['o1','BQT',        0,    3.4, 'ORE',       'var(--amber)'],
+  ['o2','Pellet (D)', 2375, 2.1, 'ORE',       'var(--amber)'],
+  ['o3','J.LUMPY',    0,    0.08,'ORE',       'var(--amber)'],
+  ['o4','FBL',        250,  4.9, 'ORE',       'var(--amber)'],
+  ['r0','JCL COKE',   440,  7.8, 'REDUCTANT', 'var(--cyan)'],
+  ['r1','Mettrade',   150,  9.1, 'REDUCTANT', 'var(--cyan)'],
+  ['r2','Gas Coke',   0,    12.9,'REDUCTANT', 'var(--cyan)'],
+  ['r3','A COAL',     70,   6.5, 'REDUCTANT', 'var(--cyan)'],
+  ['f0','OLIVINE',    0,    1.5, 'FLUX',      'var(--green)'],
+  ['f1','MAGNESITE',  100,  0.5, 'FLUX',      'var(--green)'],
+  ['f2','QUARTZ',     190,  1.0, 'FLUX',      'var(--green)'],
+  ['f3','BAUXITE',    0,    1.0, 'FLUX',      'var(--green)'],
+];
+
+// Charts storage
+const CHARTS = {};
+
+// Batch log
+const batchLog = [];
+
+// ═══════════════════════════════════════════════
+//  HELPER UTILITIES
+// ═══════════════════════════════════════════════
+const $ = id => document.getElementById(id);
+const v = id => parseFloat($(`${id}`)?.value) || 0;
+
+function setTxt(id, val, dec=2, colorClass='') {
+  const el = $(id);
+  if (!el) return;
+  el.textContent = (val === null || isNaN(val)) ? '—' : Number(val).toFixed(dec);
+  if (colorClass) el.className = el.className.replace(/(amber|green|red|cyan)/g,'').trim() + ' ' + colorClass;
+}
+
+function toast(msg, type='success', dur=3000) {
+  const c = $('toast-container');
+  const t = document.createElement('div');
+  t.className = `toast ${type}`;
+  t.innerHTML = `<span>${type==='success'?'✅':type==='warning'?'⚠️':'❌'}</span><span>${msg}</span>`;
+  c.appendChild(t);
+  setTimeout(() => t.remove(), dur);
+}
+
+function switchTab(btn, id) {
+  document.querySelectorAll('.nav-tab').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.tab-pane').forEach(p=>p.classList.remove('active'));
+  btn.classList.add('active');
+  $(id).classList.add('active');
+  if (id === 't-charts') rebuildCharts();
+}
+
+function openModal(id)  { $(id).classList.add('open'); }
+function closeModal(id) { $(id).classList.remove('open'); }
+
+// ═══════════════════════════════════════════════
+//  BUILD INPUT TABLES
+// ═══════════════════════════════════════════════
+function buildQtyTable() {
+  const tb = $('qty-table-body');
+  let lastCat = '';
+  tb.innerHTML = '';
+  QTY_INPUTS.forEach(([id, name, wet, mois, cat, col]) => {
+    if (cat !== lastCat) {
+      const sr = document.createElement('tr');
+      sr.className = 'section-row';
+      sr.innerHTML = `<td colspan="4" style="color:${col}">${cat}</td>`;
+      tb.appendChild(sr);
+      lastCat = cat;
+    }
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td class="t-label">${name}</td>
+      <td class="center"><input type="number" id="wet-${id}" value="${wet}" step="10" min="0" style="width:90px;text-align:center" oninput="recalcAll()"></td>
+      <td class="center"><input type="number" id="mois-${id}" value="${mois}" step="0.1" min="0" max="30" style="width:72px;text-align:center" oninput="recalcAll()"></td>
+      <td class="center t-calc" id="dry-${id}">—</td>
+    `;
+    tb.appendChild(tr);
+  });
+}
+
+function buildAnalysisTable(tbodyId, data, names, prefix) {
+  const tb = $(tbodyId);
+  tb.innerHTML = '';
+  COMP_LABELS.slice(0,10).forEach((comp, ci) => {
+    const tr = document.createElement('tr');
+    let cells = `<td class="t-label">${comp}</td>`;
+    data.forEach((col, mi) => {
+      cells += `<td class="center"><input type="number" id="${prefix}${mi}_${ci}" value="${col[ci]}" step="0.01" style="width:68px;text-align:center" oninput="recalcAll()"></td>`;
+    });
+    if (prefix === 'ore') {
+      cells += `<td class="center t-calc" id="${prefix}-sum-${ci}" style="font-size:0.7rem">—</td>`;
+    }
+    tr.innerHTML = cells;
+    tb.appendChild(tr);
+  });
+  // UD row (auto-calculated remainder)
+  const udTr = document.createElement('tr');
+  udTr.className = 'total-row';
+  let udCells = `<td style="color:var(--amber);font-size:0.7rem;font-weight:700">UD (auto)</td>`;
+  data.forEach((col, mi) => {
+    udCells += `<td class="center t-calc amber" id="${prefix}-ud-${mi}">—</td>`;
+  });
+  if (prefix === 'ore') udCells += `<td></td>`;
+  udTr.innerHTML = udCells;
+  tb.appendChild(udTr);
+}
+
+// ═══════════════════════════════════════════════
+//  COLLECT ANALYSIS DATA
+// ═══════════════════════════════════════════════
+function getAnalysis(prefix, nMats, nComps=10) {
+  return Array.from({length: nMats}, (_,mi) =>
+    Array.from({length: nComps}, (_,ci) => {
+      const el = $(`${prefix}${mi}_${ci}`);
+      return el ? parseFloat(el.value)||0 : 0;
+    })
+  );
+}
+
+// ═══════════════════════════════════════════════
+//  MAIN CALCULATION ENGINE
+// ═══════════════════════════════════════════════
+function recalcAll() {
+  // ── 1. Quantities ──
+  const wetArr  = QTY_INPUTS.map(([id])  => Math.max(0, v(`wet-${id}`)));
+  const moisArr = QTY_INPUTS.map(([id])  => Math.max(0, v(`mois-${id}`)));
+  const dryArr  = wetArr.map((w,i) => w * (1 - moisArr[i]/100));
+  QTY_INPUTS.forEach(([id], i) => setTxt(`dry-${id}`, dryArr[i], 1));
+
+  // Split by category
+  const ORE_IDX = [0,1,2,3,4], RED_IDX = [5,6,7,8], FLX_IDX = [9,10,11,12];
+  const oreDry  = ORE_IDX.map(i => dryArr[i]);
+  const redDry  = RED_IDX.map(i => dryArr[i]);
+  const flxDry  = FLX_IDX.map(i => dryArr[i]);
+
+  // ── 2. Analysis data ──
+  const oreA = getAnalysis('ore', 5);
+  const redA = getAnalysis('red', 4);
+  const flxA = getAnalysis('flx', 4);
+  const redFC  = [0,1,2,3].map(i => Math.max(0, v(`r-fc-${i}`)));
+  const redAsh = [0,1,2,3].map(i => Math.max(0, v(`r-ash-${i}`)));
+
+  // VM = 100 - FC - Ash
+  redFC.forEach((_,i) => {
+    const vm = 100 - redFC[i] - redAsh[i];
+    const el = $(`r-vm-${i}`);
+    if (el) el.textContent = vm.toFixed(2);
+  });
+
+  // ── 3. UD rows and column sums ──
+  oreA.forEach((col, mi) => {
+    const sum = col.slice(0,10).reduce((a,b)=>a+b, 0);
+    const ud  = 100 - sum;
+    const el  = $(`ore-ud-${mi}`);
+    if (el) {
+      el.textContent = ud.toFixed(2);
+      el.className   = `t-calc ${Math.abs(ud) < 0.5 ? 'green' : Math.abs(ud) < 2 ? 'amber' : 'red'}`;
+    }
+  });
+  COMP_LABELS.slice(0,10).forEach((_,ci) => {
+    const sum = oreA.reduce((s,col)=>s+col[ci], 0);
+    const el  = $(`ore-sum-${ci}`);
+    if (el) el.textContent = sum.toFixed(2);
+  });
+  redA.forEach((col, mi) => {
+    const ud = 100 - col.slice(0,10).reduce((a,b)=>a+b,0);
+    const el = $(`red-ud-${mi}`);
+    if (el) el.textContent = ud.toFixed(2);
+  });
+  flxA.forEach((col, mi) => {
+    const ud = 100 - col.slice(0,10).reduce((a,b)=>a+b,0);
+    const el = $(`flx-ud-${mi}`);
+    if (el) el.textContent = ud.toFixed(2);
+  });
+
+  // ── 4. Weighted element totals ──
+  // ci: 0=LOI,1=Cr2O3,2=FeO,3=Fe2O3,4=SiO2,5=CaO,6=Al2O3,7=MgO,8=P2O5,9=SO3
+  const oreT = Array(10).fill(0);
+  oreA.forEach((col,i) => col.forEach((v,ci) => { oreT[ci] += oreDry[i] * v / 100; }));
+  const flxT = Array(10).fill(0);
+  flxA.forEach((col,i) => col.forEach((v,ci) => { flxT[ci] += flxDry[i] * v / 100; }));
+  const redT = Array(10).fill(0);
+  redA.forEach((col,i) => col.forEach((v,ci) => { redT[ci] += redDry[i] * v / 100 * redAsh[i]/100; }));
+
+  // ── 5. Reductant FC / Ash totals ──
+  const redFCkg  = redDry.reduce((s,d,i) => s + d * redFC[i]/100, 0);
+  const redAshkg = redDry.reduce((s,d,i) => s + d * redAsh[i]/100, 0);
+  const redVMkg  = redDry.reduce((s,d,i) => s + d * (100-redFC[i]-redAsh[i])/100, 0);
+  const oreLOIkg = oreDry.reduce((s,d,i) => s + d * oreA[i][0]/100, 0);
+  const flxLOIkg = flxDry.reduce((s,d,i) => s + d * flxA[i][0]/100, 0);
+
+  // ── 6. Element extraction ──
+  const totCr2O3  = oreT[1] + flxT[1];
+  const totFeO    = oreT[2];
+  const totFe2O3  = oreT[3] + flxT[3];
+  const totSiO2   = oreT[4] + flxT[4];
+  const totCaO    = oreT[5] + flxT[5];
+  const totAl2O3  = oreT[6] + flxT[6] + redT[6];
+  const totMgO    = oreT[7] + flxT[7];
+  const totP2O5   = oreT[8] + flxT[8];
+  const totSO3    = oreT[9] + flxT[9];
+
+  const totCr = 104 * totCr2O3 / 152;
+  const totFe = (totFeO * 56/72) + (totFe2O3 * 0.7);
+  const totSi = totSiO2 * 28/60;
+  const totP  = totP2O5 * 62/142;
+  const totS  = totSO3  * 32/80;
+
+  // ── 7. Partition inputs ──
+  const ptCrM = v('pt-cr-m'), ptCrS = v('pt-cr-s');
+  const ptFeM = v('pt-fe-m'), ptFeS = v('pt-fe-s');
+  const ptSiM = v('pt-si-m'), ptSiS = v('pt-si-s');
+  const ptPM  = v('pt-p-m'),  ptPS  = v('pt-p-s');
+  const ptSM  = v('pt-s-m'),  ptSS  = v('pt-s-s');
+
+  setTxt('pt-cr-l', 100-ptCrM-ptCrS, 1);
+  setTxt('pt-fe-l', 100-ptFeM-ptFeS, 1);
+  setTxt('pt-si-l', 100-ptSiM-ptSiS, 1);
+  setTxt('pt-p-l',  100-ptPM -ptPS,  1);
+  setTxt('pt-s-l',  100-ptSM -ptSS,  1);
+
+  // ── 8. Alloy composition ──
+  const alCr  = totCr * ptCrM/100;
+  const alFe  = totFe * ptFeM/100;
+  const alSi  = totSi * ptSiM/100;
+  const alP   = totP  * ptPM /100;
+  const alS   = totS  * ptSM /100;
+  const alC   = 36*alCr/364 + 12*alFe/168;
+  const totAl = alCr + alFe + alSi + alP + alS + alC;
+
+  setTxt('al-cr-kg',  alCr, 2); if (totAl>0) setTxt('al-cr-pct',  alCr/totAl*100, 2);
+  setTxt('al-fe-kg',  alFe, 2); if (totAl>0) setTxt('al-fe-pct',  alFe/totAl*100, 2);
+  setTxt('al-si-kg',  alSi, 2); if (totAl>0) setTxt('al-si-pct',  alSi/totAl*100, 2);
+  setTxt('al-p-kg',   alP,  3); if (totAl>0) setTxt('al-p-pct',   alP /totAl*100, 3);
+  setTxt('al-s-kg',   alS,  3); if (totAl>0) setTxt('al-s-pct',   alS /totAl*100, 3);
+  setTxt('al-c-kg',   alC,  2); if (totAl>0) setTxt('al-c-pct',   alC /totAl*100, 2);
+  setTxt('al-total',  totAl, 2);
+
+  // ── 9. Slag composition ──
+  const slCr2O3 = totCr * ptCrS/100 * 152/104;
+  const slFeO   = totFe * ptFeS/100 * 72/56;
+  const slSiO2  = totSi * ptSiS/100 * 60/28;
+  const slCaO   = totCaO;
+  const slAl2O3 = totAl2O3;
+  const slMgO   = totMgO;
+  const slP2O5  = totP  * ptPS /100;
+  const slSO3   = totS  * ptSS /100;
+  const totSl   = slCr2O3 + slFeO + slSiO2 + slCaO + slAl2O3 + slMgO + slP2O5 + slSO3;
+
+  setTxt('sl-cr2o3', slCr2O3, 2); if (totSl>0) setTxt('sl-cr2o3-pct', slCr2O3/totSl*100, 2);
+  setTxt('sl-feo',   slFeO,   2); if (totSl>0) setTxt('sl-feo-pct',   slFeO  /totSl*100, 2);
+  setTxt('sl-sio2',  slSiO2,  2); if (totSl>0) setTxt('sl-sio2-pct',  slSiO2 /totSl*100, 2);
+  setTxt('sl-cao',   slCaO,   2); if (totSl>0) setTxt('sl-cao-pct',   slCaO  /totSl*100, 2);
+  setTxt('sl-al2o3', slAl2O3, 2); if (totSl>0) setTxt('sl-al2o3-pct', slAl2O3/totSl*100, 2);
+  setTxt('sl-mgo',   slMgO,   2); if (totSl>0) setTxt('sl-mgo-pct',   slMgO  /totSl*100, 2);
+  setTxt('sl-p2o5',  slP2O5,  3); if (totSl>0) setTxt('sl-p2o5-pct',  slP2O5 /totSl*100, 3);
+  setTxt('sl-so3',   slSO3,   3); if (totSl>0) setTxt('sl-so3-pct',   slSO3  /totSl*100, 3);
+  setTxt('sl-total', totSl, 2);
+
+  // ── 10. Carbon balance ──
+  const cbCr     = 36 * alCr  / 104;
+  const cbCr7C3  = 36 * alCr  / 364;
+  const cbFe2O3  = totFe2O3 * 12/160;
+  const cbFeO    = 12/72 * (totFeO + totFe2O3*144/160*ptFeM/100);
+  const cbFe3C   = 12 * alFe / 168;
+  const cbSiO2si = 24 * alSi / 28;
+  const cbSiOgas = 12 * totSiO2 * (100-ptSiM-ptSiS)/100 / 60;
+  const cbP      = 60 * totP  * (ptPM + (100-ptPM-ptPS)) / 100 / 142;
+  const cbS      = 36 * alS  / 32;
+  const cbOther  = cbSiOgas + cbP + cbS;
+  const totFCReq = cbCr + cbCr7C3 + cbFe2O3 + cbFeO + cbFe3C + cbSiO2si + cbOther;
+  const fcPct    = totFCReq > 0 ? redFCkg / totFCReq * 100 : 0;
+
+  setTxt('cb-cr',     cbCr,    2);
+  setTxt('cb-cr7c3',  cbCr7C3, 2);
+  setTxt('cb-fe2o3',  cbFe2O3, 2);
+  setTxt('cb-feo',    cbFeO,   2);
+  setTxt('cb-fe3c',   cbFe3C,  2);
+  setTxt('cb-sio2si', cbSiO2si,2);
+  setTxt('cb-other',  cbOther, 2);
+  setTxt('cb-req',    totFCReq, 2);
+  setTxt('cb-avail',  redFCkg, 2);
+
+  const cbProg = $('cb-prog');
+  const cbTxt  = $('cb-pct-txt');
+  const cbAlt  = $('cb-alert');
+  if (cbProg) {
+    cbProg.style.width = Math.min(fcPct, 150) + '%';
+    cbProg.style.background = fcPct >= 100 ? 'var(--green)' : 'var(--red)';
+  }
+  if (cbTxt) cbTxt.textContent = fcPct.toFixed(1) + '% availability';
+  if (cbAlt) {
+    if (fcPct >= 100) {
+      cbAlt.className = 'alert alert-ok';
+      cbAlt.textContent = `✅ FC surplus — ${fcPct.toFixed(1)}% available vs required`;
+    } else {
+      cbAlt.className = 'alert alert-error';
+      cbAlt.textContent = `❌ FC deficit — only ${fcPct.toFixed(1)}% available (add more reductant)`;
+    }
+  }
+
+  // ── 11. Material Balance ──
+  const totOreDrys = oreDry.reduce((a,b)=>a+b, 0);
+  const totRedDrys = redDry.reduce((a,b)=>a+b, 0);
+  const totFlxDrys = flxDry.reduce((a,b)=>a+b, 0);
+  const totInDry   = totOreDrys + totRedDrys + totFlxDrys;
+  const losses     = totCr*(100-ptCrM-ptCrS)/100 + totFe*(100-ptFeM-ptFeS)/100;
+  const coKg       = totFCReq * 28/12;
+  const loiVMkg    = oreLOIkg + flxLOIkg + redVMkg;
+  const totOut     = totAl + totSl + coKg + losses + loiVMkg;
+
+  setTxt('mb-ore',      totOreDrys, 1);
+  setTxt('mb-red',      totRedDrys, 1);
+  setTxt('mb-flx',      totFlxDrys, 1);
+  setTxt('mb-in-total', totInDry,   1);
+  setTxt('mb-alloy',    totAl,      1);
+  setTxt('mb-slag',     totSl,      1);
+  setTxt('mb-co',       coKg,       1);
+  setTxt('mb-loss',     losses,     1);
+  setTxt('mb-loi',      loiVMkg,    1);
+  setTxt('mb-out-total',totOut,     1);
+
+  // ── 12. Key Ratios ──
+  const saRatio   = totAl > 0 ? totSl  / totAl : 0;
+  const basicity  = slSiO2 > 0 ? (slCaO + slMgO) / slSiO2 : 0;
+  const crFeAlloy = alFe  > 0 ? alCr   / alFe   : 0;
+  const crFeOre   = totFe > 0 ? totCr  / totFe  : 0;
+  const mgoAl     = slAl2O3 > 0 ? slMgO / slAl2O3 : 0;
+  const oreRateD  = totAl > 0 ? totOreDrys / totAl : 0;
+  const redRateMT = totAl > 0 ? totRedDrys / totAl : 0;
+
+  setTxt('r-kpi-sa',    saRatio,   3);
+  setTxt('r-kpi-basi',  basicity,  3);
+  setTxt('r-kpi-crfe-a',crFeAlloy, 3);
+  setTxt('r-kpi-crfe-o',crFeOre,   3);
+  setTxt('r-kpi-mgoal', mgoAl,     3);
+  setTxt('r-kpi-ore-d', oreRateD,  3);
+  setTxt('r-kpi-red-mt',redRateMT, 3);
+  setTxt('r-kpi-fc-rate',fcPct,    1);
+
+  // ── 13. KPI Strip ──
+  const setKpi = (id, val, dec=1) => { const el = $(id); if (el) el.textContent = isNaN(val)?'—':val.toFixed(dec); };
+  setKpi('kpi-alloy',   totAl,      1);
+  setKpi('kpi-slag',    totSl,      1);
+  setKpi('kpi-sa-ratio',saRatio,    3);
+  setKpi('kpi-fc-req',  totFCReq,   1);
+  setKpi('kpi-fc-avail',redFCkg,    1);
+  setKpi('kpi-fc-pct',  fcPct,      1);
+  setKpi('kpi-tot-ore', totOreDrys, 0);
+  setKpi('kpi-tot-red', totRedDrys, 0);
+
+  const fcBar = $('kpi-fc-bar');
+  if (fcBar) fcBar.style.width = Math.min(fcPct,100) + '%';
+
+  // ── 14. Heat ──
+  const hMetal  = 2.500;
+  const hSlag   = 0.468;
+  const hTap    = 0.131;
+  const hBot    = 0.014;
+  const moistKg = (loiVMkg > 0 && totAl > 0) ? loiVMkg / totAl * 1000 : 0;
+  const hMoist  = totAl > 0 ? (loiVMkg * 2.256917 / 3600 / (totAl/1000)) : 0.066;
+
+  // Shell cooling
+  const scFlow = v('sc-flow'), scTin = v('sc-tin'), scTout = v('sc-tout');
+  const scHeat = scFlow * (scTout - scTin) * 4.187 * 1000 / 3600000; // MWh/h → daily
+  setTxt('sc-heat', scHeat, 4);
+
+  const hShell  = scHeat * 24 / (totAl > 0 ? totAl/1000 : 1);
+
+  const hTop    = 0.0;
+  const hLoss   = hTop + hTap + hBot + hShell + hMoist;
+  const hTotal  = hMetal + hSlag + hLoss;
+
+  setTxt('h-metal',   hMetal,  3);
+  setTxt('h-slag',    hSlag,   3);
+  setTxt('h-ms-tot',  hMetal+hSlag, 3);
+  setTxt('h-top',     hTop,    3);
+  setTxt('h-tap',     hTap,    3);
+  setTxt('h-bot',     hBot,    3);
+  setTxt('h-shell',   hShell,  4);
+  setTxt('h-moist',   hMoist,  4);
+  setTxt('h-loss-tot',hLoss,   3);
+  setKpi('h-kpi-total',  hTotal,  3);
+  setKpi('h-kpi-moist',  moistKg, 1);
+
+  // Gas
+  const coVol    = (cbCr+cbCr7C3+cbFe2O3+cbFeO+cbFe3C+cbSiO2si+cbOther) * 28/12 * 22.4/28;
+  const gasNM3mt = totAl > 0 ? coVol * 1000 / totAl : 0;
+  const gasNM3hr = coVol * (v('p-batches')||1) / 24;
+  setKpi('h-kpi-gas-nm3', gasNM3mt, 0);
+  setKpi('h-kpi-gas-hr',  gasNM3hr, 0);
+
+  // ── 15. Validation ──
+  runValidation({ totAl, totSl, fcPct, saRatio, basicity, oreA, redFC, redAsh });
+
+  // ── 16. Store global state for charts/log ──
+  window._state = { totAl, totSl, saRatio, totFCReq, redFCkg, fcPct, basicity,
+    crFeAlloy, oreRateD, alCr, alFe, alSi, alP, alS, alC,
+    slCr2O3, slFeO, slSiO2, slCaO, slAl2O3, slMgO,
+    totOreDrys, totRedDrys, totFlxDrys, coKg, losses, loiVMkg,
+    hMetal, hSlag, hTap, hBot, hShell, hMoist, hLoss, hTotal,
+    gasNM3mt, gasNM3hr };
+}
+
+// ═══════════════════════════════════════════════
+//  VALIDATION
+// ═══════════════════════════════════════════════
+function runValidation({ totAl, totSl, fcPct, saRatio, basicity, oreA, redFC, redAsh }) {
+  const pills = [];
+  const checks = [
+    [totAl > 0,           '✓ Alloy > 0 Kg',       '⚠ No alloy produced — check ore qty', true],
+    [fcPct >= 100,         `✓ FC balanced (${fcPct.toFixed(1)}%)`, `⚠ FC deficit ${fcPct.toFixed(1)}%`, fcPct>=100],
+    [saRatio >= 0.5 && saRatio <= 2.5, `✓ Slag/Alloy = ${saRatio.toFixed(2)}`, `⚠ Slag/Alloy = ${saRatio.toFixed(2)} (unusual)`, saRatio>=0.5&&saRatio<=2.5],
+    [basicity > 0.3 && basicity < 1.5, `✓ Basicity = ${basicity.toFixed(2)}`, `⚠ Basicity = ${basicity.toFixed(2)}`, basicity>0.3&&basicity<1.5],
+  ];
+  oreA.forEach((col, mi) => {
+    const sum = col.slice(0,10).reduce((a,b)=>a+b,0);
+    const ok  = Math.abs(sum - 100) < 3;
+    if (!ok) checks.push([false, '', `⚠ ${ORE_NAMES[mi]} sum = ${sum.toFixed(1)}%`, false]);
+  });
+  redFC.forEach((fc, i) => {
+    const ok = fc + redAsh[i] <= 100;
+    if (!ok) checks.push([false,'',`⚠ ${RED_NAMES[i]} FC+Ash > 100%`, false]);
+  });
+
+  const wrap = $('vpills-wrap');
+  if (!wrap) return;
+  wrap.innerHTML = '';
+  let allOk = true;
+  checks.forEach(([,okMsg, warnMsg, isOk]) => {
+    if (isOk && okMsg) {
+      wrap.innerHTML += `<span class="vpill ok">${okMsg}</span>`;
+    } else if (!isOk && warnMsg) {
+      wrap.innerHTML += `<span class="vpill warn">${warnMsg}</span>`;
+      allOk = false;
+    }
+  });
+
+  const hdrSt = $('validation-status');
+  if (hdrSt) {
+    hdrSt.textContent = allOk ? '✓ All checks passed' : '⚠ Validation warnings';
+    hdrSt.style.color = allOk ? 'var(--green)' : 'var(--amber)';
+  }
+}
+
+// ═══════════════════════════════════════════════
+//  CHARTS
+// ═══════════════════════════════════════════════
+Chart.defaults.color = 'rgba(200,210,240,0.7)';
+Chart.defaults.font.family = "'Exo 2', sans-serif";
+Chart.defaults.font.size = 11;
+
+const PALETTE = ['#f5a623','#00d4ff','#00e676','#b47aff','#ff3d5a','#ffcc44','#4fc3f7','#80cbc4'];
+
+function mkChart(id, cfg) {
+  if (CHARTS[id]) { CHARTS[id].destroy(); }
+  const ctx = $(id);
+  if (!ctx) return;
+  CHARTS[id] = new Chart(ctx, cfg);
+}
+
+function rebuildCharts() {
+  const s = window._state;
+  if (!s) return;
+
+  const dark = { backgroundColor: 'transparent' };
+  const gridClr = 'rgba(30,40,64,0.8)';
+  const scales = {
+    x: { grid: { color: gridClr }, ticks: { color: 'rgba(180,190,220,0.7)' } },
+    y: { grid: { color: gridClr }, ticks: { color: 'rgba(180,190,220,0.7)' } }
+  };
+
+  // Alloy pie
+  mkChart('chart-alloy', {
+    type: 'doughnut',
+    data: {
+      labels: ['Cr','Fe','Si','P','S','C'],
+      datasets: [{ data: [s.alCr,s.alFe,s.alSi,s.alP,s.alS,s.alC].map(v=>+v.toFixed(2)),
+        backgroundColor: PALETTE, borderColor: 'rgba(0,0,0,0.3)', borderWidth: 2 }]
+    },
+    options: { plugins: { legend: { position:'right' } }, ...dark }
+  });
+
+  // Slag pie
+  mkChart('chart-slag', {
+    type: 'doughnut',
+    data: {
+      labels: ['Cr₂O₃','FeO','SiO₂','CaO','Al₂O₃','MgO'],
+      datasets: [{ data: [s.slCr2O3,s.slFeO,s.slSiO2,s.slCaO,s.slAl2O3,s.slMgO].map(v=>+v.toFixed(2)),
+        backgroundColor: PALETTE, borderColor: 'rgba(0,0,0,0.3)', borderWidth: 2 }]
+    },
+    options: { plugins: { legend: { position:'right' } }, ...dark }
+  });
+
+  // Balance bar
+  mkChart('chart-balance', {
+    type: 'bar',
+    data: {
+      labels: ['Ore','Reductant','Flux','Alloy','Slag','CO Gas','Losses','LOI+VM'],
+      datasets: [{
+        label: 'Kg / batch',
+        data: [s.totOreDrys,s.totRedDrys,s.totFlxDrys,s.totAl,s.totSl,s.coKg,s.losses,s.loiVMkg].map(v=>+v.toFixed(1)),
+        backgroundColor: [...PALETTE.slice(0,3).map(c=>c+'aa'), ...PALETTE.slice(3,8).map(c=>c+'aa')],
+        borderColor: PALETTE,
+        borderWidth: 1
+      }]
+    },
+    options: { plugins: { legend: { display:false } }, scales, ...dark }
+  });
+
+  // Heat doughnut
+  mkChart('chart-heat', {
+    type: 'doughnut',
+    data: {
+      labels: ['Metal Formation','Slag Formation','Tapping','Bottom','Shell','Moisture'],
+      datasets: [{ data: [s.hMetal,s.hSlag,s.hTap,s.hBot,s.hShell,s.hMoist].map(v=>+v.toFixed(4)),
+        backgroundColor: PALETTE, borderColor: 'rgba(0,0,0,0.3)', borderWidth: 2 }]
+    },
+    options: { plugins: { legend: { position:'right' } }, ...dark }
+  });
+
+  // Input horizontal bar
+  const inLabels = QTY_INPUTS.map(([,name])=>name);
+  const inData   = QTY_INPUTS.map(([id]) => { const el = $(`wet-${id}`); return el ? parseFloat(el.value)||0 : 0; });
+  mkChart('chart-input', {
+    type: 'bar',
+    data: {
+      labels: inLabels,
+      datasets: [{
+        label: 'Wet Qty (Kg)',
+        data: inData,
+        backgroundColor: QTY_INPUTS.map(([,,,,cat]) =>
+          cat==='ORE'?'rgba(245,166,35,0.6)':cat==='REDUCTANT'?'rgba(0,212,255,0.6)':'rgba(0,230,118,0.6)'),
+        borderColor: QTY_INPUTS.map(([,,,,cat]) =>
+          cat==='ORE'?'var(--amber)':cat==='REDUCTANT'?'var(--cyan)':'var(--green)'),
+        borderWidth: 1
+      }]
+    },
+    options: { indexAxis:'y', plugins:{ legend:{display:false} }, scales, ...dark }
+  });
+}
+
+// ═══════════════════════════════════════════════
+//  BATCH LOG
+// ═══════════════════════════════════════════════
+function saveBatch() {
+  const s = window._state;
+  if (!s || s.totAl === 0) { toast('No valid alloy output. Check inputs.', 'warning'); return; }
+  const now = new Date();
+  const entry = {
+    n: batchLog.length + 1,
+    dt: now.toLocaleString('en-IN', { day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit' }),
+    alloy: s.totAl.toFixed(1),
+    slag:  s.totSl.toFixed(1),
+    sa:    s.saRatio.toFixed(3),
+    fcReq: s.totFCReq.toFixed(1),
+    fcAvl: s.redFCkg.toFixed(1),
+    fcPct: s.fcPct.toFixed(1),
+    basi:  s.basicity.toFixed(3),
+    crfe:  s.crFeAlloy.toFixed(3),
+  };
+  batchLog.push(entry);
+  renderLog();
+  toast(`Batch #${entry.n} saved`, 'success');
+}
+
+function renderLog() {
+  const tb = $('log-tbody');
+  const tbl = $('log-table');
+  const empty = $('log-empty');
+  const cnt = $('log-count');
+  if (!tb) return;
+  if (batchLog.length === 0) {
+    tbl.style.display = 'none';
+    empty.style.display = 'block';
+    if (cnt) cnt.textContent = '0 entries';
+    return;
+  }
+  tbl.style.display = 'table';
+  empty.style.display = 'none';
+  if (cnt) cnt.textContent = `${batchLog.length} ${batchLog.length===1?'entry':'entries'}`;
+  tb.innerHTML = batchLog.map((e,i) => `
+    <tr>
+      <td style="color:var(--text3)">#${e.n}</td>
+      <td class="t-label">${e.dt}</td>
+      <td class="center t-calc amber">${e.alloy}</td>
+      <td class="center t-calc">${e.slag}</td>
+      <td class="center t-calc">${e.sa}</td>
+      <td class="center t-calc">${e.fcReq}</td>
+      <td class="center t-calc green">${e.fcAvl}</td>
+      <td class="center t-calc ${parseFloat(e.fcPct)>=100?'green':'red'}">${e.fcPct}%</td>
+      <td class="center t-calc">${e.basi}</td>
+      <td class="center t-calc">${e.crfe}</td>
+      <td class="center"><button class="btn btn-danger" style="padding:4px 10px;font-size:0.65rem" onclick="deleteBatch(${i})">✕</button></td>
+    </tr>
+  `).join('');
+}
+
+function deleteBatch(i) {
+  batchLog.splice(i, 1);
+  batchLog.forEach((e,j) => e.n = j+1);
+  renderLog();
+}
+function clearLog() {
+  if (batchLog.length === 0) return;
+  batchLog.length = 0;
+  renderLog();
+  toast('Batch log cleared', 'warning');
+}
+
+// ═══════════════════════════════════════════════
+//  EXPORT
+// ═══════════════════════════════════════════════
+function exportCSV() {
+  if (batchLog.length === 0) { toast('Save at least one batch first.', 'warning'); return; }
+  const hdr = ['#','DateTime','Alloy(Kg)','Slag(Kg)','Slag/Alloy','FCReq(Kg)','FCAvail(Kg)','FC%','Basicity','Cr/Fe'];
+  const rows = batchLog.map(e => [e.n,e.dt,e.alloy,e.slag,e.sa,e.fcReq,e.fcAvl,e.fcPct,e.basi,e.crfe].join(','));
+  const csv = [hdr.join(','), ...rows].join('\n');
+  const blob = new Blob([csv], { type:'text/csv' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `FeCr_BurdenSheet_${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+  toast('CSV exported', 'success');
+}
+
+function exportJSON() {
+  const s = window._state;
+  if (!s) { toast('Run calculation first.', 'warning'); return; }
+  const blob = new Blob([JSON.stringify({ timestamp: new Date().toISOString(), ...s }, null, 2)], { type:'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `FeCr_BurdenSheet_${new Date().toISOString().slice(0,10)}.json`;
+  a.click();
+  toast('JSON exported', 'success');
+}
+
+function printPage() {
+  window.print();
+}
+
+// ═══════════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════════
+window.addEventListener('DOMContentLoaded', () => {
+  // Date
+  const d = new Date();
+  const hdrDate = $('hdr-date');
+  if (hdrDate) hdrDate.textContent = d.toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' });
+
+  // Build tables
+  buildQtyTable();
+  buildAnalysisTable('ore-tbody', ORE_DATA, ORE_NAMES, 'ore');
+  buildAnalysisTable('red-tbody', RED_DATA, RED_NAMES, 'red');
+  buildAnalysisTable('flx-tbody', FLX_DATA, FLX_NAMES, 'flx');
+
+  // Wire all inputs
+  document.querySelectorAll('input').forEach(inp => {
+    inp.addEventListener('change', () => recalcAll());
+  });
+
+  // Initial calculation
+  recalcAll();
+
+  // Close modal on overlay click
+  document.querySelectorAll('.modal-overlay').forEach(ov => {
+    ov.addEventListener('click', e => { if (e.target === ov) ov.classList.remove('open'); });
+  });
+});
+</script>
+</body>
+</html>
